@@ -32,6 +32,7 @@
 <ul>
 <li><a href="#Functions">Functions</a></li>
 <li><a href="#List_class">List class </a></li>
+<li><a href="#Meta_tables">Meta tables </a></li>
 <li><a href="#Global_environment">Global environment </a></li>
 </ul>
 
@@ -67,7 +68,55 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#list:push">list:push (item, ...)</a></td>
-	<td class="summary">Add an item to a list</td>
+	<td class="summary">Add an item to the end of the list</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:pop">list:pop ()</a></td>
+	<td class="summary">Remove the last item in the list and return it</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:is_empty">list:is_empty ()</a></td>
+	<td class="summary">Remove the last item in the list and return it</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:clear">list:clear ()</a></td>
+	<td class="summary">Clear all items from the list</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:clone">list:clone ()</a></td>
+	<td class="summary">Shallow copy a list returning a new list</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:contains">list:contains (item)</a></td>
+	<td class="summary">See if the list contains an item</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:index_of">list:index_of (item)</a></td>
+	<td class="summary">Get the index of an item within the list</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:remove_item">list:remove_item (item, more_than_once)</a></td>
+	<td class="summary">Remove one or more occurances of an item</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:remove">list:remove (index)</a></td>
+	<td class="summary">Remove the item at a given index</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:remove_where">list:remove_where (predicate)</a></td>
+	<td class="summary">Remove items matching a predicate function</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:select">list:select (predicate)</a></td>
+	<td class="summary">Return a new list, only including items that match a predicate</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:map">list:map (fn)</a></td>
+	<td class="summary">Return a new list, with all items transformed by a given function</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:mutate">list:mutate (fn)</a></td>
+	<td class="summary">Destructively update and remove items from the list</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#list:with_each">list:with_each (fn)</a></td>
@@ -85,12 +134,43 @@
 	<td class="name" nowrap><a href="#list:__tostring">list:__tostring ()</a></td>
 	<td class="summary">Convert the list to a string when required</td>
 	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:concat">list:concat ()</a></td>
+	<td class="summary">Include Lua table.concat</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:insert">list:insert ()</a></td>
+	<td class="summary">Include Lua table.insert</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:maxn">list:maxn ()</a></td>
+	<td class="summary">Include Lua table.maxn</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:sort">list:sort ()</a></td>
+	<td class="summary">Include Lua table.sort</td>
+	</tr>
+</table>
+<h2><a href="#Meta_tables">Meta tables </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#weak_map">weak_map (keys, values)</a></td>
+	<td class="summary">Return a weak map</td>
+	</tr>
 </table>
 <h2><a href="#Global_environment">Global environment </a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#global">global ()</a></td>
 	<td class="summary">Optionally make everything in the preload global</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#strict">strict (including_writes)</a></td>
+	<td class="summary">Optionally prevent uninitialised writes as well</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pcall_trace">pcall_trace (fn, ...)</a></td>
+	<td class="summary">Alternative to pcall that automatically adds a stack trace to the error</td>
 	</tr>
 </table>
 
@@ -179,7 +259,7 @@ newObj:<span class="function-name">announce</span>()</pre>
     <strong>list:push (item, ...)</strong>
     </dt>
     <dd>
-    Add an item to a list
+    Add an item to the end of the list
 
 
     <h3>Parameters:</h3>
@@ -196,6 +276,297 @@ newObj:<span class="function-name">announce</span>()</pre>
     <ol>
 
         The item that was added
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list:pop"></a>
+    <strong>list:pop ()</strong>
+    </dt>
+    <dd>
+    Remove the last item in the list and return it
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The last item in the list
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list:is_empty"></a>
+    <strong>list:is_empty ()</strong>
+    </dt>
+    <dd>
+    Remove the last item in the list and return it
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true if the list is empty
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list:clear"></a>
+    <strong>list:clear ()</strong>
+    </dt>
+    <dd>
+    Clear all items from the list
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The list for chaining
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list:clone"></a>
+    <strong>list:clone ()</strong>
+    </dt>
+    <dd>
+    Shallow copy a list returning a new list
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The new shallow copy
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list:contains"></a>
+    <strong>list:contains (item)</strong>
+    </dt>
+    <dd>
+    See if the list contains an item
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">item</span>
+         The item to look for
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true or false
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list:index_of"></a>
+    <strong>list:index_of (item)</strong>
+    </dt>
+    <dd>
+    Get the index of an item within the list
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">item</span>
+         The item to look for
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The index of the item or nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list:remove_item"></a>
+    <strong>list:remove_item (item, more_than_once)</strong>
+    </dt>
+    <dd>
+    Remove one or more occurances of an item
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">item</span>
+         The item to look for
+        </li>
+        <li><span class="parameter">more_than_once</span>
+         Whether to remove multiple instances
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The list for chaining
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list:remove"></a>
+    <strong>list:remove (index)</strong>
+    </dt>
+    <dd>
+    Remove the item at a given index
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+         The index to remove, if not numeric, this will be treated as an item to remove instead
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The list for chaining
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list:remove_where"></a>
+    <strong>list:remove_where (predicate)</strong>
+    </dt>
+    <dd>
+    Remove items matching a predicate function
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">predicate</span>
+         A function that returns true for any item that should be removed
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The list for chaining
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">my_list:<span class="function-name">remove_where</span>(<span class="keyword">function</span> (item)
+  <span class="keyword">return</span> item.score &lt; <span class="number">20</span>
+<span class="keyword">end</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "list:select"></a>
+    <strong>list:select (predicate)</strong>
+    </dt>
+    <dd>
+    Return a new list, only including items that match a predicate
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">predicate</span>
+         A function that returns true for any item that should be in the new list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The new list of selected items
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> high_performers = my_list:<span class="global">select</span>(<span class="keyword">function</span> (item)
+  <span class="keyword">return</span> item.score &gt; <span class="number">100</span>
+<span class="keyword">end</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "list:map"></a>
+    <strong>list:map (fn)</strong>
+    </dt>
+    <dd>
+    Return a new list, with all items transformed by a given function
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fn</span>
+         A function that returns a new value mapped to each item
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The new list of mapped results
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list:mutate"></a>
+    <strong>list:mutate (fn)</strong>
+    </dt>
+    <dd>
+    Destructively update and remove items from the list
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fn</span>
+         A function that returns a new value, or nil to remove values, for each item in the list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The list for chaining
     </ol>
 
 
@@ -280,6 +651,100 @@ newObj:<span class="function-name">announce</span>()</pre>
 
 
 </dd>
+    <dt>
+    <a name = "list:concat"></a>
+    <strong>list:concat ()</strong>
+    </dt>
+    <dd>
+    Include Lua table.concat
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list:insert"></a>
+    <strong>list:insert ()</strong>
+    </dt>
+    <dd>
+    Include Lua table.insert
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list:maxn"></a>
+    <strong>list:maxn ()</strong>
+    </dt>
+    <dd>
+    Include Lua table.maxn
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list:sort"></a>
+    <strong>list:sort ()</strong>
+    </dt>
+    <dd>
+    Include Lua table.sort
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Meta_tables"></a>Meta tables </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "weak_map"></a>
+    <strong>weak_map (keys, values)</strong>
+    </dt>
+    <dd>
+    Return a weak map
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">keys</span>
+         Specify if keys are weak (default is false)
+        </li>
+        <li><span class="parameter">values</span>
+         Specify if values are weak (default is true)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The new weak map
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- create a fully weak map
+</span><span class="keyword">local</span> fully_weak = <span class="function-name">weak_map</span>(<span class="keyword">true</span>)
+<span class="keyword">local</span> weak_values = <span class="function-name">weak_map</span>()</pre>
+    </ul>
+
+</dd>
 </dl>
     <h2 class="section-header "><a name="Global_environment"></a>Global environment </h2>
 
@@ -308,6 +773,59 @@ newObj:<span class="function-name">announce</span>()</pre>
     </ul>
 
 </dd>
+    <dt>
+    <a name = "strict"></a>
+    <strong>strict (including_writes)</strong>
+    </dt>
+    <dd>
+    Optionally prevent uninitialised writes as well
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">including_writes</span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a reference to the prelude module for chaining
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> prelude = <span class="global">require</span>(<span class="string">'prelude'</span>).<span class="function-name">strict</span>()
+<span class="keyword">local</span> test = blah	<span class="comment">-- fails due to uninitialised read</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "pcall_trace"></a>
+    <strong>pcall_trace (fn, ...)</strong>
+    </dt>
+    <dd>
+    Alternative to pcall that automatically adds a stack trace to the error
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fn</span>
+         The function to call
+        </li>
+        <li><span class="parameter">...</span>
+         and its arguments
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
 </dl>
 
 
@@ -315,7 +833,7 @@ newObj:<span class="function-name">announce</span>()</pre>
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2024-01-13 22:47:09 </i>
+<i style="float:right;">Last updated 2024-01-14 01:39:11 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -1,4 +1,4 @@
--- local and isolated required
+-- local and isolated module used via require
 local prelude = require('prelude')
 
 -- assert that the prelude is not in the global namespace
