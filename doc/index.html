@@ -1,0 +1,322 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#List_class">List class </a></li>
+<li><a href="#Global_environment">Global environment </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><strong>prelude</strong></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>prelude</code></h1>
+<p>A general purpose prelude for Lua with no additional dependencies.</p>
+<p>
+ Provide basic classes, lists and other useful meta-functionality.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#class">class ()</a></td>
+	<td class="summary">Class meta constructor,
+ creates a new class metatable, which also functions as the constructor for that class,</td>
+	</tr>
+</table>
+<h2><a href="#List_class">List class </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#list">list (arg1, ...)</a></td>
+	<td class="summary">List constructor</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:push">list:push (item, ...)</a></td>
+	<td class="summary">Add an item to a list</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:with_each">list:with_each (fn)</a></td>
+	<td class="summary">Call a function with each member of the list</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:random">list:random ()</a></td>
+	<td class="summary">Return a random member of the list</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:shuffle">list:shuffle ()</a></td>
+	<td class="summary">Destructively shuffle the order of the list</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list:__tostring">list:__tostring ()</a></td>
+	<td class="summary">Convert the list to a string when required</td>
+	</tr>
+</table>
+<h2><a href="#Global_environment">Global environment </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#global">global ()</a></td>
+	<td class="summary">Optionally make everything in the preload global</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "class"></a>
+    <strong>class ()</strong>
+    </dt>
+    <dd>
+    Class meta constructor,
+ creates a new class metatable, which also functions as the constructor for that class,
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A new class metatable/constructor
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- add methods to the class metatable as needed
+</span><span class="comment">-- add an init method to your class to make use of any arguments on construction
+</span><span class="keyword">local</span> NewClass = prelude.<span class="function-name">class</span>()
+<span class="keyword">function</span> NewClass:<span class="function-name">init</span>(tag)
+  self.tag = tag
+<span class="keyword">end</span>
+<span class="keyword">function</span> NewClass:<span class="function-name">announce</span>()
+  <span class="global">print</span>(<span class="string">'my tag is '</span> .. self.tag)
+<span class="keyword">end</span>
+<span class="comment">-- now construct objects using our new class
+</span><span class="keyword">local</span> newObj = <span class="function-name">NewClass</span>(<span class="string">'special'</span>)
+newObj:<span class="function-name">announce</span>()</pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="List_class"></a>List class </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "list"></a>
+    <strong>list (arg1, ...)</strong>
+    </dt>
+    <dd>
+    List constructor
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">arg1</span>
+         optionally a single table to (shallow) copy into the new list
+        </li>
+        <li><span class="parameter">...</span>
+         or, an open number of parameters to add as items in the new list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the new list object
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> empty_list = prelude.<span class="function-name">list</span>()
+<span class="keyword">local</span> cloned_list = prelude.<span class="function-name">list</span>({ <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span> })
+<span class="keyword">local</span> parmeter_list = prelude.<span class="function-name">list</span>(obj1, obj2, obj3)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "list:push"></a>
+    <strong>list:push (item, ...)</strong>
+    </dt>
+    <dd>
+    Add an item to a list
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">item</span>
+         the item to add to the list
+        </li>
+        <li><span class="parameter">...</span>
+         optionally additional items to add
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The item that was added
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list:with_each"></a>
+    <strong>list:with_each (fn)</strong>
+    </dt>
+    <dd>
+    Call a function with each member of the list
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fn</span>
+         to call with each member
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">my_list:<span class="function-name">with_each</span>(<span class="keyword">function</span> (item)
+  item:<span class="function-name">update</span>()
+<span class="keyword">end</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "list:random"></a>
+    <strong>list:random ()</strong>
+    </dt>
+    <dd>
+    Return a random member of the list
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A random member of the list, or nil if empty
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list:shuffle"></a>
+    <strong>list:shuffle ()</strong>
+    </dt>
+    <dd>
+    Destructively shuffle the order of the list
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list:__tostring"></a>
+    <strong>list:__tostring ()</strong>
+    </dt>
+    <dd>
+    Convert the list to a string when required
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A square brackets string representation of the list
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Global_environment"></a>Global environment </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "global"></a>
+    <strong>global ()</strong>
+    </dt>
+    <dd>
+    Optionally make everything in the preload global
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a reference to the prelude module for chaining
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="global">require</span>(<span class="string">'prelude'</span>).<span class="function-name">global</span>()
+<span class="keyword">local</span> my_list = <span class="function-name">list</span>()</pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2024-01-13 22:47:09 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
