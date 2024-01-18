@@ -8,6 +8,9 @@ I'm attempting to maintain pure Lua compatibiity with 5.1, 5.2, 5.3 and 5.4, and
 
 The primary features are a class constructor, a list class scaffolding use of tables as lists (both following Lua idiom), along with additional useful functions mostly related to metatables. See the documentation and examples folder for further reference.
 
+Documentation
+
+https://htmlpreview.github.io/?https://github.com/samuelwbaird/prelude/blob/main/doc/index.html
 
 Classes
 
@@ -16,12 +19,20 @@ Classes
 
 Metatables
 
- * weak__map(keys, values), construct a weak map
+ * weak(keys, values), construct a weak map
+ * readonly(table), return a read only proxy of a table
 
 Global environment 
 
  * global(), publish the prelude to the global environment 
  * strict(block_writes), prevent uninitialised reads and optionally writes in the global environment
+ 
+Utilities
+
+ * sandbox(code, environment), load code in a sandboxed environment
+ * serialise(value), serialise a table as Lua code
+ * deserialise(string), execute serialised data to return a Lua table
+ * pretty(value), convert a Lua table to pretty formatted string
  * pcall__trace(fn), a wrapper for pcall that captures a stack trace where possible
 
 
@@ -82,4 +93,3 @@ To regenerate the documentation in /doc, install ldoc via luarocks and run:
 
 	ldoc prelude.lua
 	
-	https://htmlpreview.github.io/?https://github.com/samuelwbaird/prelude/blob/main/doc/index.html
