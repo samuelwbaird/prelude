@@ -34,6 +34,7 @@
 <li><a href="#List_class">List class </a></li>
 <li><a href="#Meta_tables">Meta tables </a></li>
 <li><a href="#Global_environment">Global environment </a></li>
+<li><a href="#Utility">Utility </a></li>
 </ul>
 
 
@@ -63,8 +64,12 @@
 <h2><a href="#List_class">List class </a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#list">list (arg1, ...)</a></td>
+	<td class="name" nowrap><a href="#list">list (clone)</a></td>
 	<td class="summary">List constructor</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#wrap">wrap (existing)</a></td>
+	<td class="summary">static method to wrap another table without copying</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#list:push">list:push (item, ...)</a></td>
@@ -154,8 +159,12 @@
 <h2><a href="#Meta_tables">Meta tables </a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#weak_map">weak_map (keys, values)</a></td>
+	<td class="name" nowrap><a href="#weak">weak (keys, values)</a></td>
 	<td class="summary">Return a weak map</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#readonly">readonly (table, deep)</a></td>
+	<td class="summary">Return a read only proxy to another table</td>
 	</tr>
 </table>
 <h2><a href="#Global_environment">Global environment </a></h2>
@@ -167,6 +176,26 @@
 	<tr>
 	<td class="name" nowrap><a href="#strict">strict (including_writes)</a></td>
 	<td class="summary">Optionally prevent uninitialised writes as well</td>
+	</tr>
+</table>
+<h2><a href="#Utility">Utility </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#sandbox">sandbox (code, environment, name)</a></td>
+	<td class="summary">Load code into a simple sandboxed environment</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#serialise">serialise (value)</a></td>
+	<td class="summary">Serialise a value to a text representation of a Lua table</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#deserialise">deserialise (string)</a></td>
+	<td class="summary">Parse Lua values stored	as text into Lua tables
+ - uses the built in Lua parser and IS NOT secure</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pretty">pretty (value)</a></td>
+	<td class="summary">Pretty print any Lua table as a Lua code like representation</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#pcall_trace">pcall_trace (fn, ...)</a></td>
@@ -222,7 +251,7 @@ newObj:<span class="function-name">announce</span>()</pre>
     <dl class="function">
     <dt>
     <a name = "list"></a>
-    <strong>list (arg1, ...)</strong>
+    <strong>list (clone)</strong>
     </dt>
     <dd>
     List constructor
@@ -230,11 +259,8 @@ newObj:<span class="function-name">announce</span>()</pre>
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">arg1</span>
+        <li><span class="parameter">clone</span>
          optionally a single table to (shallow) copy into the new list
-        </li>
-        <li><span class="parameter">...</span>
-         or, an open number of parameters to add as items in the new list
         </li>
     </ul>
 
@@ -249,8 +275,31 @@ newObj:<span class="function-name">announce</span>()</pre>
     <h3>Usage:</h3>
     <ul>
         <pre class="example"><span class="keyword">local</span> empty_list = prelude.<span class="function-name">list</span>()
-<span class="keyword">local</span> cloned_list = prelude.<span class="function-name">list</span>({ <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span> })
-<span class="keyword">local</span> parmeter_list = prelude.<span class="function-name">list</span>(obj1, obj2, obj3)</pre>
+<span class="keyword">local</span> cloned_list = prelude.<span class="function-name">list</span>({ <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span> })</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "wrap"></a>
+    <strong>wrap (existing)</strong>
+    </dt>
+    <dd>
+    static method to wrap another table without copying
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">existing</span>
+         apply the list class as the metable of an existing table without cloning
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> my_list = list.<span class="function-name">wrap</span>({ <span class="string">'existing'</span>, <span class="string">'list'</span> })</pre>
     </ul>
 
 </dd>
@@ -280,6 +329,11 @@ newObj:<span class="function-name">announce</span>()</pre>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">my_list:<span class="function-name">push</span>(item)
+my_list:<span class="function-name">push</span>(item1, item2, item3, item4)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -712,8 +766,8 @@ newObj:<span class="function-name">announce</span>()</pre>
 
     <dl class="function">
     <dt>
-    <a name = "weak_map"></a>
-    <strong>weak_map (keys, values)</strong>
+    <a name = "weak"></a>
+    <strong>weak (keys, values)</strong>
     </dt>
     <dd>
     Return a weak map
@@ -740,9 +794,37 @@ newObj:<span class="function-name">announce</span>()</pre>
     <h3>Usage:</h3>
     <ul>
         <pre class="example"><span class="comment">-- create a fully weak map
-</span><span class="keyword">local</span> fully_weak = <span class="function-name">weak_map</span>(<span class="keyword">true</span>)
-<span class="keyword">local</span> weak_values = <span class="function-name">weak_map</span>()</pre>
+</span><span class="keyword">local</span> fully_weak = <span class="function-name">weak</span>(<span class="keyword">true</span>)
+<span class="keyword">local</span> weak_values = <span class="function-name">weak</span>()</pre>
     </ul>
+
+</dd>
+    <dt>
+    <a name = "readonly"></a>
+    <strong>readonly (table, deep)</strong>
+    </dt>
+    <dd>
+    Return a read only proxy to another table
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">table</span>
+         The Lua table being wrapped by the proxy
+        </li>
+        <li><span class="parameter">deep</span>
+         Optionally request a deep proxy that wraps referenced objects and method invocations (see test_readonly.lua for details)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The readonly proxy
+    </ol>
+
+
+
 
 </dd>
 </dl>
@@ -803,6 +885,117 @@ newObj:<span class="function-name">announce</span>()</pre>
     </ul>
 
 </dd>
+</dl>
+    <h2 class="section-header "><a name="Utility"></a>Utility </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "sandbox"></a>
+    <strong>sandbox (code, environment, name)</strong>
+    </dt>
+    <dd>
+    Load code into a simple sandboxed environment
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">code</span>
+         The Lua code to load
+        </li>
+        <li><span class="parameter">environment</span>
+         A table to use as the global environment of the function
+        </li>
+        <li><span class="parameter">name</span>
+         An optional name, eg. of the source file, to use in error messages loading the code
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The function with the sandboxed environment set
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "serialise"></a>
+    <strong>serialise (value)</strong>
+    </dt>
+    <dd>
+    Serialise a value to a text representation of a Lua table
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+         The Lua value to serialise
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A string representation that can be executed as Lua code to return the table
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "deserialise"></a>
+    <strong>deserialise (string)</strong>
+    </dt>
+    <dd>
+    Parse Lua values stored	as text into Lua tables
+ - uses the built in Lua parser and IS NOT secure
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">string</span>
+         The serialised value to execute and return as a Lua value
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the Lua values
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pretty"></a>
+    <strong>pretty (value)</strong>
+    </dt>
+    <dd>
+    Pretty print any Lua table as a Lua code like representation
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+         The Lua value to convert to pretty text
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the string representation (multiline with indents)
+    </ol>
+
+
+
+
+</dd>
     <dt>
     <a name = "pcall_trace"></a>
     <strong>pcall_trace (fn, ...)</strong>
@@ -833,7 +1026,7 @@ newObj:<span class="function-name">announce</span>()</pre>
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2024-01-14 01:39:11 </i>
+<i style="float:right;">Last updated 2024-01-18 23:50:28 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

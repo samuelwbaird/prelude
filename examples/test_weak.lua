@@ -5,7 +5,7 @@ local prelude = require('prelude')
 -- run a program that creates a number of throw away objects
 -- each referenced by a sequential number
 
-local map = prelude.weak_map()
+local map = prelude.weak()
 for key = 1, 10000 do
 	map[key] = {}
 end

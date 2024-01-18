@@ -52,23 +52,27 @@ prelude.list = prelude.class()
 
 --- List constructor
 -- @function list
--- @param arg1 optionally a single table to (shallow) copy into the new list
--- @param ... or, an open number of parameters to add as items in the new list
+-- @param clone optionally a single table to (shallow) copy into the new list
 -- @return the new list object
 -- @usage
 -- local empty_list = prelude.list()
 -- local cloned_list = prelude.list({ 1, 2, 3 })
--- local parmeter_list = prelude.list(obj1, obj2, obj3)
-function prelude.list:init(arg1, arg2, ...)
-	if type(arg1) == 'table' and #arg1 > 0 and arg2 == nil then
+function prelude.list:init(clone)
+	if clone then
 		-- copy from this list
-		for i, v in ipairs(arg1) do
+		for i, v in ipairs(clone) do
 			self[i] = v
 		end
-	elseif arg1 then
-		-- add argument items individually
-		self:push(arg1, arg2, ...)
 	end
+end
+
+--- static method to wrap another table without copying
+-- @function wrap
+-- @param existing apply the list class as the metable of an existing table without cloning
+-- @usage
+-- local my_list = list.wrap({ 'existing', 'list' })
+function prelude.list.wrap(existing)
+	return setmetatable(existing, prelude)
 end
 
 --- Add an item to the end of the list
@@ -76,6 +80,9 @@ end
 -- @param item the item to add to the list
 -- @param ... optionally additional items to add
 -- @return The item that was added
+-- @usage
+-- my_list:push(item)
+-- my_list:push(item1, item2, item3, item4)
 function prelude.list:push(item, additional, ...)
 	self[#self + 1] = item
 	if additional then
@@ -125,7 +132,7 @@ function prelude.list:clone()
 	end
 	return new_list
 end
-	
+
 --- See if the list contains an item
 -- @function list:contains
 -- @param item The item to look for
@@ -138,7 +145,7 @@ function prelude.list:contains(item)
 	end
 	return false
 end
-	
+
 --- Get the index of an item within the list
 -- @function list:index_of
 -- @param item The item to look for
@@ -314,19 +321,74 @@ prelude.list.sort = table.sort
 -- @return The new weak map
 -- @usage
 -- -- create a fully weak map
--- local fully_weak = weak_map(true)
--- local weak_values = weak_map()
-function prelude.weak_map(keys, values)
+-- local fully_weak = weak(true)
+-- local weak_values = weak()
+function prelude.weak(keys, values)
 	local mode = ''
 	if type(keys) == 'boolean' and keys == true then
 		mode = mode .. 'k'
 	end
 	if type(values) ~= 'boolean' or values == true then
 		mode = mode .. 'v'
-	end	
+	end
 	return setmetatable({}, {
 		__mode = mode
 	})
+end
+
+-- weak map of read only proxies to reuse
+local readonly_proxies = prelude.weak(true, true)
+
+--- Return a read only proxy to another table
+-- @param table The Lua table being wrapped by the proxy
+-- @param deep Optionally request a deep proxy that wraps referenced objects and method invocations (see test_readonly.lua for details)
+-- @return The readonly proxy
+function prelude.readonly(table, deep)
+	if deep then
+		local existing = readonly_proxies[table]
+		if existing then
+			return existing
+		end
+		local proxy = {}
+		readonly_proxies[table] = proxy
+		setmetatable(proxy, {
+			__index = function (t, k)
+				local value = table[k]
+				if type(value) == 'table' then
+					return prelude.readonly(value, true)
+				elseif type(value) == 'function' then
+					-- set a proxy function that will sub "self" when required
+					local proxy_function = function (target, ...)
+						if target == proxy then
+							target = table
+						end
+						return value(target, ...)
+					end
+					rawset(proxy, k, proxy_function)
+					return proxy_function
+				else
+					return value
+				end
+			end,
+			__newindex = function (k, v)
+				error('cannot update readonly table', 2)
+			end,
+			__pairs = function () return pairs(table) end,
+			__ipairs = function () return ipairs(table) end,
+			__len = function () return #table end
+		})
+		return proxy
+	else
+		return setmetatable({}, {
+			__index = table,
+			__newindex = function (k, v)
+				error('cannot update readonly table', 2)
+			end,
+			__pairs = function () return pairs(table) end,
+			__ipairs = function () return ipairs(table) end,
+			__len = function () return #table end
+		})
+	end
 end
 
 
@@ -365,6 +427,124 @@ function prelude.strict(including_writes)
 	return prelude
 end
 
+
+---------------------------------------------------------------------------------------
+
+--- Utility
+-- @section utility
+
+-- private method, encode Lua values as strings into table
+function encode_value(value, output, indent, pretty)
+	local t = type(value)
+	if t == 'string' then
+		output[#output + 1] = string.format('%q', value)
+	elseif t == 'table' then
+		output[#output + 1] = '{'
+		if #value > 0 then
+			for i, v in ipairs(value) do
+				if i > 1 then
+					output[#output + 1] = ','
+				end
+				encode_value(v, output, indent, pretty)
+			end
+		else
+			if pretty then
+				indent = indent .. '  '
+			end
+			local first = true
+			for k, v in pairs(value) do
+				if pretty then
+					output[#output + 1] = '\n'
+					output[#output + 1] = indent
+				else
+					if first then
+						first = false
+					else
+						output[#output + 1] = ','
+					end
+				end
+				if type(k) == 'string' then
+					output[#output + 1] = '['
+					encode_value(k, output, indent, pretty)
+					output[#output + 1] = ']='
+					encode_value(v, output, indent, pretty)
+				else
+					encode_value(k, output, indent, pretty)
+					output[#output + 1] = '='
+					encode_value(v, output, indent, pretty)
+				end
+				if pretty then
+					output[#output + 1] = ','
+				end
+			end
+		end
+		if pretty then
+			output[#output + 1] = '\n'
+			output[#output + 1] = indent:sub(1, -3)
+		end
+		output[#output + 1] = '}'
+	elseif t == 'boolean' or t == 'number' then
+		output[#output + 1] = tostring(value)
+	elseif value == nil then
+		output[#output + 1] = 'nil'
+	elseif pretty then
+		output[#output + 1] = '<'
+		output[#output + 1] = type(value)
+		output[#output + 1] = '>'
+	else
+		error('serialise unsupported type ' .. t)
+	end
+end
+
+--- Load code into a simple sandboxed environment
+-- @param code The Lua code to load
+-- @param environment A table to use as the global environment of the function
+-- @param name An optional name, eg. of the source file, to use in error messages loading the code
+-- @return The function with the sandboxed environment set
+function prelude.sandbox(code, environment, name)
+	if setfenv then
+		local fn, message = loadstring(code, name)
+		setfenv(fn, environment)
+		if not fn then
+			error(message)
+		end
+		return fn
+	else
+		local fn, message = load(code, name, 't', environment)
+		if not fn then
+			error(message)
+		end
+		return fn
+	end
+end
+
+--- Serialise a value to a text representation of a Lua table
+-- @param value The Lua value to serialise
+-- @return A string representation that can be executed as Lua code to return the table
+function prelude.serialise(value)
+	local output = {'return '}
+	encode_value(value, output, '', false)
+	return table.concat(output, '')
+end
+
+--- Parse Lua values stored	as text into Lua tables
+-- - uses the built in Lua parser and IS NOT secure
+-- @param string The serialised value to execute and return as a Lua value
+-- @return the Lua values
+function prelude.deserialise(string)
+	-- load the string in an empty sandbox and then execute return the value
+	return prelude.sandbox(string, {}, 'deserialise') ()
+end
+
+--- Pretty print any Lua table as a Lua code like representation
+-- @param value The Lua value to convert to pretty text
+-- @return the string representation (multiline with indents)
+function prelude.pretty(value)
+	local output = {}
+	encode_value(value, output, '', true)
+	return table.concat(output)
+end
+
 --- Alternative to pcall that automatically adds a stack trace to the error
 -- @param fn The function to call
 -- @param ... and its arguments
@@ -377,7 +557,6 @@ function prelude.pcall_trace(fn, ...)
 			return tostring(err)
 		end
 	end
-	
 	return xpcall(function (...) return fn(...) end, handle_by_capturing_stack_trace)
 end
 

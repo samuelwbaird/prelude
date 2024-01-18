@@ -81,3 +81,5 @@ Run the examples from the project root file, ie.
 To regenerate the documentation in /doc, install ldoc via luarocks and run:
 
 	ldoc prelude.lua
+	
+	https://htmlpreview.github.io/?https://github.com/samuelwbaird/prelude/blob/main/doc/index.html
