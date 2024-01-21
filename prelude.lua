@@ -75,6 +75,17 @@ function prelude.list.wrap(existing)
 	return setmetatable(existing, prelude)
 end
 
+--- static method to create a list by packing a variable number of arguments
+-- @function pack
+-- @param ... any number of arguments to pack into the new list
+-- @usage
+-- local my_list = list.pack(obj1, obj2, obj3)
+function prelude.list.pack(...)
+	local new_list = list()
+	new_list:push(...)
+	return new_list
+end
+
 --- Add an item to the end of the list
 -- @function list:push
 -- @param item the item to add to the list
@@ -392,6 +403,39 @@ function prelude.readonly(table, deep)
 end
 
 
+--- Return a proxy to a compound chain of other objects
+-- @param obj1 The first object in the chain
+-- @param ... Optionally the second object in the chain and so on
+-- @return A new proxy
+function prelude.proxy_chain(obj1, ...)
+	local chain = list.pack(obj1, ...)
+	local top_level_proxy = {}
+	return setmetatable(top_level_proxy, {
+		__index = function (t, k)
+			for _, obj in ipairs(chain) do
+				local value = obj[k]
+				if value then
+					return value
+				end
+				if type(value) == 'function' then
+					-- substitute the proxy for the original object in any arguments of the function
+					-- set a proxy function that will sub "self" when required
+					local proxy_function = function (target, ...)
+						if target == top_level_proxy then
+							target = obj
+						end
+						return value(target, ...)
+					end
+					rawset(top_level_proxy, k, proxy_function)
+					return proxy_function
+				elseif value then
+					return value
+				end				
+			end
+		end,
+	})
+end
+
 ---------------------------------------------------------------------------------------
 
 --- Global environment
@@ -477,10 +521,10 @@ function encode_value(value, output, indent, pretty)
 					output[#output + 1] = ','
 				end
 			end
-		end
-		if pretty then
-			output[#output + 1] = '\n'
-			output[#output + 1] = indent:sub(1, -3)
+			if pretty then
+				output[#output + 1] = '\n'
+				output[#output + 1] = indent:sub(1, -3)
+			end
 		end
 		output[#output + 1] = '}'
 	elseif t == 'boolean' or t == 'number' then
@@ -516,6 +560,25 @@ function prelude.sandbox(code, environment, name)
 		end
 		return fn
 	end
+end
+
+--- One line read file content
+-- @param filename The file name to open and read
+-- @return The contents of the file as a string
+function prelude.readfile(filename)
+	local file = assert(io.open(filename, 'rb'), 'could not read file ' .. filename)
+	local contents = file:read('*a')
+	file:close()
+	return contents
+end
+
+--- One line write file content, creating or replacing it
+-- @param filename The file name to open and read
+-- @param contents The string contents to write to the file
+function prelude.writefile(filename, contents)
+	local file = assert(io.open(filename, 'wb'), 'could not write to file ' .. filename)
+	file:write(contents)
+	file:close()
 end
 
 --- Serialise a value to a text representation of a Lua table
