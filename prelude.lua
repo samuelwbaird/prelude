@@ -174,7 +174,7 @@ end
 -- @param item The item to look for
 -- @param more_than_once Whether to remove multiple instances
 -- @return The list for chaining
-function prelude.list.remove_item(item, more_than_once)
+function prelude.list:remove_item(item, more_than_once)
 	for i, v in ipairs(self) do
 		if v == item then
 			table.remove(self, i)
@@ -190,10 +190,10 @@ end
 -- @function list:remove
 -- @param index The index to remove, if not numeric, this will be treated as an item to remove instead
 -- @return The list for chaining
-function prelude.list.remove(index)
+function prelude.list:remove(index)
 	if type(index) ~= 'number' then
 		self:remove_item(index)
-	else
+	else		
 		table.remove(self, index)
 	end
 	return self
@@ -207,7 +207,7 @@ end
 -- my_list:remove_where(function (item)
 --   return item.score < 20
 -- end)
-function prelude.list.remove_where(predicate)
+function prelude.list:remove_where(predicate)
 	for _, v in ipairs(self) do
 		if predicate(v) then
 			table.remove(self, i)
